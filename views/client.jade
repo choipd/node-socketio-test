@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+        <title>Insert title here</title>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type='text/javascript'>
+            var conn = io.connect('http://localhost:8000');
+
+            function message(obj){
+                var el = document.createElement('p');
+                el.innerHTML = '<em>' + esc(obj) + '</em>'
+                document.getElementById('chat').appendChild(el);
+                document.getElementById('chat').scrollTop = 1000000;
+            };
+            function join(){
+                var serverName = document.getElementById('serverName').value;
+                var msg = {};
+                msg.serverName = serverName;
+                conn.emit('serverName', msg);
+            };
+        
+            conn.on('announcement', function(obj){
+            	var el = document.createElement('p');
+                el.innerHTML = '<em>' + esc(obj) + '</em>'
+                document.getElementById('chat').appendChild(el);
+                document.getElementById('chat').scrollTop = 1000000;
+            });
+        
+            function esc(msg) {
+                return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            };
+        </script>
+    </head>
+    <body>
+        <div id="chat">
+        </div>
+
+        <form onsubmit="join(); return false;">
+          <input id="serverName" type="text">
+          <input type="submit" value="Send">
+        </form>
+
+    </body>
+</html>
