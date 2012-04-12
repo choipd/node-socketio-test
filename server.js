@@ -103,23 +103,34 @@ socket.on('connection', function(con){
 
 function getServerByRR(key){
 	var i = 0;
+	var name = {};
+
 	if(server_idx[key]){
 		console.log('-> ' + server_idx[key]);
 		i = server_idx[key];
 		if(i >= servers[key].length){
 			i = 0;
 		}
-	}else{
+	} else {
 		console.log('-> ' + server_idx[key]);
 		server_idx[key] = 0;
 		i=0;
 	}
-	console.log('return -> ');
-	console.dir(servers[key][i]);
-	server_idx[key] = i + 1;
-	console.log('idx -> ');
-	console.dir(server_idx);
-	return servers[key][i];
+
+	if(servers[key]) {
+        console.dir(servers[key][i]);
+        server_idx[key] = i + 1;
+        console.log('idx -> ');
+        console.dir(server_idx);
+
+        name = servers[key][i];
+        name['service'] = key;
+	}
+
+    console.log('return -> ');
+    console.dir(name);
+
+	return name;
 }
     
 app.listen(8000);
