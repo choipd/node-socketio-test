@@ -1,45 +1,71 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
-        <title>Insert title here</title>
-        <script src="/socket.io/socket.io.js"></script>
-        <script type='text/javascript'>
+html
+    head
+        title Insert title here
+        script(src="/socket.io/socket.io.js")
+        script(type='text/javascript')
             var conn = io.connect('http://localhost:8000');
-
             function message(obj){
+                console.log(obj);
                 var el = document.createElement('p');
-                el.innerHTML = '<em>' + esc(obj) + '</em>'
+                el.innerHTML = '<em>' + JSON.parse(obj) + '</em>';
                 document.getElementById('chat').appendChild(el);
                 document.getElementById('chat').scrollTop = 1000000;
             };
             function join(){
-                var serverName = document.getElementById('serverName').value;
+                var serverName = document.getElementById('serverName').value
+                    ,serviceName = document.getElementById('serviceName').value
+                    ,port = document.getElementById('port').value;
                 var msg = {};
-                msg.serverName = serverName;
-                conn.emit('serverName', msg);
+                msg[serviceName] = {'serverName': serverName, 'port': port };
+                conn.emit('join', msg);
             };
-        
+            function getServerByRR(){
+                var service = document.getElementById('service').value;
+                conn.emit('getServerByRR', service, function(data){
+                    console.log(data);
+                    var el = document.createElement('p');
+                    el.innerHTML = '<em>' + 'server: ' + data[i].serverName + ':' + data[i].port + '</em>';
+                    document.getElementById('chat').appendChild(el);
+                    document.getElementById('chat').scrollTop = 1000000;
+                });
+            };
+            function getServerListByRR(){
+                conn.emit('getServerListByRR', function(data){
+                    console.log(data);
+                    for(var i in data){
+                        var el = document.createElement('p');
+                        el.innerHTML = '<em>' + 'server: ' + data[i].serverName + ':' + data[i].port + '</em>';
+                        document.getElementById('list').appendChild(el);
+                    }
+                    document.getElementById('list').scrollTop = 1000000;
+                });
+            };
             conn.on('announcement', function(obj){
-            	var el = document.createElement('p');
-                el.innerHTML = '<em>' + esc(obj) + '</em>'
+                console.log(obj);
+                var el = document.createElement('p');
+                el.innerHTML = '<em>' + obj.server + obj.action + '</em>';
                 document.getElementById('chat').appendChild(el);
                 document.getElementById('chat').scrollTop = 1000000;
             });
-        
-            function esc(msg) {
-                return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            };
-        </script>
-    </head>
-    <body>
+    body
         <div id="chat">
         </div>
+        <div id="list">
+        </div>
 
-        <form onsubmit="join(); return false;">
-          <input id="serverName" type="text">
-          <input type="submit" value="Send">
-        </form>
-
-    </body>
-</html>
+        form(onsubmit="join(); return false;")
+            label serverName 
+                <input id="serverName" type="text">
+            label serviceName 
+                <input id="serviceName" type="text">
+            label port 
+                <input id="port" type="text">
+            <input type="submit" value="join">
+        form(onsubmit="getServerByRR(); return false;")
+            label serviceName
+                <input id="service" type="text">
+            <input type="submit" value="get">
+        form(onsubmit="getServerListByRR(); return false;")
+            label servers
+            <input type="submit" value="get">
+            
